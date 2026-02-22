@@ -1,0 +1,27 @@
+@model The_Garden_Group.Models.Employee
+
+<h2>Create Employee</h2>
+
+<form method="post">
+    <div><label>First Name</label><input asp-for="FirstName" /></div>
+    <div><label>Last Name</label><input asp-for="LastName" /></div>
+    <div><label>Email</label><input asp-for="Email" /></div>
+
+    <div>
+        <label>Role</label>
+        <select asp-for="Role">
+            <option value="employee">employee</option>
+            <option value="serviceDesk">serviceDesk</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Password</label>
+        <input name="password" type="password" />
+    </div>
+
+    <button type="submit">Create</button>
+    <a href="/AdminEmployees">Back</a>
+
+    <div asp-validation-summary="All" style="color:red"></div>
+</form>

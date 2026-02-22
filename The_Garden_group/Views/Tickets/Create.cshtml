@@ -1,0 +1,45 @@
+@model The_Garden_Group.ViewModels.TicketCreateVm
+
+<h2>Create Ticket</h2>
+
+<form method="post">
+    <div>
+        <label>Subject</label>
+        <input asp-for="Subject" />
+        <span asp-validation-for="Subject" style="color:red"></span>
+    </div>
+
+    <div>
+        <label>Description</label>
+        <textarea asp-for="Description" rows="5"></textarea>
+        <span asp-validation-for="Description" style="color:red"></span>
+    </div>
+
+    <div>
+        <label>Category</label>
+        <select asp-for="Category">
+            <option value="network">network</option>
+            <option value="hardware">hardware</option>
+            <option value="software">software</option>
+            <option value="account">account</option>
+            <option value="email">email</option>
+            <option value="other" selected>other</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Priority</label>
+        <select asp-for="Priority">
+            <option value="low">low</option>
+            <option value="medium" selected>medium</option>
+            <option value="high">high</option>
+        </select>
+    </div>
+
+    <div style="margin-top:10px;">
+        <button type="submit">Create</button>
+        <a href="/Tickets/MyTickets">Back</a>
+    </div>
+
+    <div asp-validation-summary="All" style="color:red"></div>
+</form>

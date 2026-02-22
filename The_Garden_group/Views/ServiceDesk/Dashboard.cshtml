@@ -1,0 +1,14 @@
+@model The_Garden_Group.ViewModels.DashboardVm
+<h2>Service Desk Dashboard</h2>
+
+<p>
+    <a class="btn btn-primary" href="/Tickets">All Tickets</a>
+    <a class="btn btn-secondary" href="/AdminEmployees/Index">Manage Employees</a>
+</p>
+
+<p>Total: @Model.Total</p>
+<ul>
+    <li>Open: @Model.Open (@Model.OpenPct.ToString("0.0")%)</li>
+    <li>Resolved: @Model.Resolved (@Model.ResolvedPct.ToString("0.0")%)</li>
+    <li>Closed: @Model.Closed (@Model.ClosedPct.ToString("0.0")%)</li>
+</ul>

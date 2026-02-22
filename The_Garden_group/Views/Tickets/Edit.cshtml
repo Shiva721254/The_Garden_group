@@ -1,0 +1,55 @@
+@model The_Garden_Group.ViewModels.TicketEditVm
+<h2>Edit Ticket</h2>
+
+<form method="post" action="/Tickets/Edit">
+    <input type="hidden" asp-for="Id" />
+
+    <div>
+        <label>Subject</label>
+        <input asp-for="Subject" />
+    </div>
+
+    <div>
+        <label>Description</label>
+        <textarea asp-for="Description" rows="5"></textarea>
+    </div>
+
+    <div>
+        <label>Category</label>
+        <select asp-for="Category">
+            <option value="network">network</option>
+            <option value="hardware">hardware</option>
+            <option value="software">software</option>
+            <option value="account">account</option>
+            <option value="email">email</option>
+            <option value="other">other</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Priority</label>
+        <select asp-for="Priority">
+            <option value="low">low</option>
+            <option value="medium">medium</option>
+            <option value="high">high</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Status</label>
+        <p><strong>Current status:</strong> @Model.Status</p>
+        <select asp-for="Status" class="form-select">
+            <option value="open">open</option>
+            <option value="resolved">resolved</option>
+            <option value="closed">closed</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Resolution Note (for resolved)</label>
+        <input asp-for="ResolutionNote" />
+    </div>
+
+    <button type="submit">Save</button>
+    <a href="/Tickets">Back</a>
+</form>

@@ -1,0 +1,27 @@
+@model The_Garden_Group.Models.Employee
+
+<h2>Edit Employee</h2>
+
+<form method="post" action="/AdminEmployees/Edit">
+    <input type="hidden" asp-for="Id" />
+
+    <div><label>First Name</label><input asp-for="FirstName" /></div>
+    <div><label>Last Name</label><input asp-for="LastName" /></div>
+    <div><label>Email</label><input asp-for="Email" /></div>
+
+    <div>
+        <label>Role</label>
+        <select asp-for="Role">
+            <option value="employee">employee</option>
+            <option value="serviceDesk">serviceDesk</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Active</label>
+        <input asp-for="IsActive" type="checkbox" />
+    </div>
+
+    <button type="submit">Save</button>
+    <a href="/AdminEmployees">Back</a>
+</form>
