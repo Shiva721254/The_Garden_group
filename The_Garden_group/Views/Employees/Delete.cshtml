@@ -1,0 +1,35 @@
+﻿@model The_Garden_Group.Models.Employee
+@{
+    ViewData["Title"] = "Delete Employee";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h1 class="h3 fw-bold mb-0">Delete Employee</h1>
+                <div class="text-muted">This action cannot be undone</div>
+            </div>
+            <a class="btn btn-outline-secondary" href="/Employees">Back</a>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <div class="alert alert-warning">
+                    Are you sure you want to delete
+                    <strong>@Model.FirstName @Model.LastName</strong> (@Model.Email)?
+                </div>
+
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    <a class="btn btn-outline-secondary" href="/Employees">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

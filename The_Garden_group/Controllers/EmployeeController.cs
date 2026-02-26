@@ -15,10 +15,16 @@ public sealed class EmployeeController : Controller
         _dash = dash;
     }
 
+    [HttpGet]
     public async Task<IActionResult> Dashboard()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized();
+
         var vm = await _dash.GetForUserAsync(userId);
-        return View(vm);
+
+        // Force the correct view path
+        return View("~/Views/Employees/Dashboard.cshtml", vm);
     }
 }

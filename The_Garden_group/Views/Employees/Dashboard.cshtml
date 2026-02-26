@@ -1,17 +1,17 @@
 @model The_Garden_Group.ViewModels.DashboardVm
 @{
-    ViewData["Title"] = "Service Desk Dashboard";
+    ViewData["Title"] = "My Dashboard";
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
     <div>
-        <h1 class="h3 fw-bold mb-0">Service Desk Dashboard</h1>
-        <div class="text-muted">Overview of all tickets</div>
+        <h1 class="h3 fw-bold mb-0">My Dashboard</h1>
+        <div class="text-muted">Overview of your tickets</div>
     </div>
 
     <div class="d-flex gap-2">
-        <a class="btn btn-primary" href="/Tickets">All Tickets</a>
-        <a class="btn btn-outline-secondary" href="/Employees">Employees</a>
+        <a class="btn btn-primary" href="/Tickets/Create">Create Ticket</a>
+        <a class="btn btn-outline-secondary" href="/Tickets/MyTickets">My Tickets</a>
     </div>
 </div>
 
@@ -55,9 +55,11 @@
 
 <div class="card shadow-sm border-0">
     <div class="card-body">
-        <h2 class="h6 fw-bold mb-2">Quick actions</h2>
-        <div class="text-muted">
-            Use <strong>All Tickets</strong> to update status and add resolution notes.
-        </div>
+        <h2 class="h6 fw-bold mb-2">How to use</h2>
+        <ul class="mb-0 text-muted">
+            <li>Create a ticket when you have an issue.</li>
+            <li>Track progress under <strong>My Tickets</strong>.</li>
+            <li>Status updates are done by Service Desk.</li>
+        </ul>
     </div>
 </div>

@@ -43,6 +43,8 @@ builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<SeedService>();
+builder.Services.AddScoped<TicketSearchService>();
+
 
 // Cookie authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -50,14 +52,17 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Auth/Login";
         options.AccessDeniedPath = "/Auth/Denied";
-        options.Cookie.Name = "The_Garden_group.Auth";
+        options.Cookie.Name = "The_Garden_Group.Auth";
+
+        options.ExpireTimeSpan = TimeSpan.FromHours(2);   // <-- validity
+        options.SlidingExpiration = true;                 // <-- extends on activity
     });
 
 // Authorization policies
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("EmployeeOnly", p => p.RequireClaim("role", "employee"));
-    options.AddPolicy("ServiceDeskOnly", p => p.RequireClaim("role", "serviceDesk"));
+    options.AddPolicy("EmployeeOnly", p => p.RequireRole("employee"));
+    options.AddPolicy("ServiceDeskOnly", p => p.RequireRole("serviceDesk"));
 });
 
 var app = builder.Build();

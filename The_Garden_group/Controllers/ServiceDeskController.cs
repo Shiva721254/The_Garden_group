@@ -14,9 +14,12 @@ public sealed class ServiceDeskController : Controller
         _dash = dash;
     }
 
+    [HttpGet]
     public async Task<IActionResult> Dashboard()
     {
         var vm = await _dash.GetGlobalAsync();
-        return View(vm);
+
+        // Force the correct view (prevents accidentally showing Employee/Dashboard)
+        return View("~/Views/ServiceDesk/Dashboard.cshtml", vm);
     }
 }

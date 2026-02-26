@@ -1,5 +1,4 @@
 using MongoDB.Driver;
-using System.Net.Sockets;
 using The_Garden_Group.Models;
 using The_Garden_Group.ViewModels;
 
@@ -14,9 +13,11 @@ public sealed class DashboardService
         _tickets = db.GetCollection<Ticket>("tickets");
     }
 
+    // ServiceDesk: all tickets (global)
     public Task<DashboardVm> GetGlobalAsync()
         => BuildAsync(Builders<Ticket>.Filter.Empty);
 
+    // Employee: only own tickets
     public Task<DashboardVm> GetForUserAsync(string userId)
         => BuildAsync(Builders<Ticket>.Filter.Eq(x => x.CreatedByUserId, userId));
 
@@ -31,12 +32,14 @@ public sealed class DashboardService
         int resolved = grouped.FirstOrDefault(x => x.Status == "resolved")?.Count ?? 0;
         int closed = grouped.FirstOrDefault(x => x.Status == "closed")?.Count ?? 0;
 
+        int total = open + resolved + closed;
+
         return new DashboardVm
         {
             Open = open,
             Resolved = resolved,
             Closed = closed,
-            Total = open + resolved + closed
+            Total = total
         };
     }
 }

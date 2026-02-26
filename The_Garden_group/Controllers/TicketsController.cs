@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using The_Garden_Group.Models;
 using The_Garden_Group.Repositories;
 using The_Garden_Group.ViewModels;
+using The_Garden_Group.Services;
 
 namespace The_Garden_Group.Controllers;
 
@@ -12,10 +13,11 @@ namespace The_Garden_Group.Controllers;
 public sealed class TicketsController : Controller
 {
     private readonly ITicketRepository _tickets;
-
-    public TicketsController(ITicketRepository tickets)
+    private readonly TicketSearchService _search;
+    public TicketsController(ITicketRepository tickets, TicketSearchService search)
     {
         _tickets = tickets;
+        _search = search;
     }
 
     // ============================
@@ -66,12 +68,16 @@ public sealed class TicketsController : Controller
     // SERVICE DESK
     // ============================
 
-    // GET /Tickets
+   
+    // GET /Tickets?query=...&mode=AND|OR
     [Authorize(Policy = "ServiceDeskOnly")]
     [HttpGet("")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? query, string mode = "OR")
     {
-        var list = await _tickets.GetAllAsync();
+        ViewBag.Query = query ?? "";
+        ViewBag.Mode = mode;
+
+        var list = await _search.SearchAsync(query, mode);
         return View(list);
     }
 
@@ -100,6 +106,7 @@ public sealed class TicketsController : Controller
     // POST /Tickets/Edit
     [Authorize(Policy = "ServiceDeskOnly")]
     [HttpPost("Edit")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(TicketEditVm vm)
     {
         if (!ModelState.IsValid) return View(vm);
@@ -136,6 +143,7 @@ public sealed class TicketsController : Controller
     // POST /Tickets/Delete/{id}
     [Authorize(Policy = "ServiceDeskOnly")]
     [HttpPost("Delete/{id}")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(string id)
     {
         await _tickets.DeleteAsync(id);

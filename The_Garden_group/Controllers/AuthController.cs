@@ -19,16 +19,16 @@ public sealed class AuthController : Controller
     [HttpGet]
     public IActionResult Login()
     {
-        // If already logged in, do not show login page again
         if (User.Identity?.IsAuthenticated ?? false)
         {
-            var role = User.FindFirst("role")?.Value;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
             return role == "serviceDesk"
                 ? RedirectToAction("Dashboard", "ServiceDesk")
                 : RedirectToAction("Dashboard", "Employee");
         }
 
-        return View(new LoginVm());
+        return View();
     }
 
     [HttpPost]
@@ -44,11 +44,11 @@ public sealed class AuthController : Controller
         }
 
         var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id ?? ""),
-            new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}".Trim()),
-            new Claim("role", user.Role)
-        };
+{
+    new Claim(ClaimTypes.NameIdentifier, user.Id ?? ""),
+    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}".Trim()),
+    new Claim(ClaimTypes.Role, user.Role) // IMPORTANT
+};
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(
@@ -60,11 +60,16 @@ public sealed class AuthController : Controller
             : RedirectToAction("Dashboard", "Employee");
     }
 
-    [HttpPost]
+    [HttpPost("/Auth/Logout")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync();
-        return RedirectToAction("Login");
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        // Extra safety: remove the cookie by name too
+        Response.Cookies.Delete("The_Garden_Group.Auth");
+
+        return RedirectToAction("Login", "Auth");
     }
 
     public IActionResult Denied() => View();
