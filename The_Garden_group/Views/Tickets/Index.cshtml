@@ -78,6 +78,7 @@
                                 <td class="text-end">
                                     <a class="btn btn-sm btn-primary" href="/Tickets/Edit/@t.Id">Edit</a>
                                     <form method="post" action="/Tickets/Delete/@t.Id" class="d-inline">
+                                        @Html.AntiForgeryToken()
                                         <button class="btn btn-sm btn-outline-danger" type="submit"
                                                 onclick="return confirm('Delete this ticket?');">
                                             Delete

@@ -5,6 +5,7 @@ using The_Garden_Group.Models;
 using The_Garden_Group.Repositories;
 using The_Garden_Group.ViewModels;
 using The_Garden_Group.Services;
+using The_Garden_Group.Constants;
 
 namespace The_Garden_Group.Controllers;
 
@@ -14,6 +15,7 @@ public sealed class TicketsController : Controller
 {
     private readonly ITicketRepository _tickets;
     private readonly TicketSearchService _search;
+
     public TicketsController(ITicketRepository tickets, TicketSearchService search)
     {
         _tickets = tickets;
@@ -32,11 +34,12 @@ public sealed class TicketsController : Controller
     // POST /Tickets/Create
     [Authorize(Policy = "EmployeeOnly")]
     [HttpPost("Create")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TicketCreateVm vm)
     {
         if (!ModelState.IsValid) return View(vm);
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
         var ticket = new Ticket
         {
@@ -44,7 +47,7 @@ public sealed class TicketsController : Controller
             Description = vm.Description.Trim(),
             Category = vm.Category,
             Priority = vm.Priority,
-            Status = "open",
+            Status = TicketStatuses.Open,
             CreatedByUserId = userId,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -59,7 +62,7 @@ public sealed class TicketsController : Controller
     [HttpGet("MyTickets")]
     public async Task<IActionResult> MyTickets()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
         var list = await _tickets.GetByCreatorAsync(userId);
         return View(list);
     }
@@ -68,13 +71,12 @@ public sealed class TicketsController : Controller
     // SERVICE DESK
     // ============================
 
-   
     // GET /Tickets?query=...&mode=AND|OR
     [Authorize(Policy = "ServiceDeskOnly")]
     [HttpGet("")]
     public async Task<IActionResult> Index(string? query, string mode = "OR")
     {
-        ViewBag.Query = query ?? "";
+        ViewBag.Query = query ?? string.Empty;
         ViewBag.Mode = mode;
 
         var list = await _search.SearchAsync(query, mode);
@@ -91,7 +93,7 @@ public sealed class TicketsController : Controller
 
         var vm = new TicketEditVm
         {
-            Id = t.Id ?? "",
+            Id = t.Id ?? string.Empty,
             Subject = t.Subject,
             Description = t.Description,
             Category = t.Category,
@@ -118,20 +120,26 @@ public sealed class TicketsController : Controller
         t.Description = vm.Description.Trim();
         t.Category = vm.Category;
         t.Priority = vm.Priority;
-
-        // Status logic
         t.Status = vm.Status;
 
-        if (vm.Status == "resolved")
+        // Status-specific logic
+        switch (t.Status)
         {
-            t.ResolutionNote = string.IsNullOrWhiteSpace(vm.ResolutionNote) ? "Resolved" : vm.ResolutionNote.Trim();
-            t.ResolvedAt ??= DateTime.UtcNow;
-        }
-        else
-        {
-            // open or closed => no resolved info
-            t.ResolutionNote = null;
-            t.ResolvedAt = null;
+            case TicketStatuses.Resolved:
+                t.ResolutionNote = string.IsNullOrWhiteSpace(vm.ResolutionNote) 
+                    ? "Resolved" 
+                    : vm.ResolutionNote.Trim();
+                t.ResolvedAt ??= DateTime.UtcNow;
+                break;
+
+            case TicketStatuses.Closed when string.IsNullOrWhiteSpace(t.ResolutionNote):
+                t.ResolutionNote = "Closed without resolution";
+                break;
+
+            case TicketStatuses.Open:
+                t.ResolutionNote = null;
+                t.ResolvedAt = null;
+                break;
         }
 
         t.UpdatedAt = DateTime.UtcNow;

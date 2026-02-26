@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using The_Garden_Group.Services;
 using The_Garden_Group.ViewModels;
+using The_Garden_Group.Constants;
 
 namespace The_Garden_Group.Controllers;
 
@@ -21,11 +22,7 @@ public sealed class AuthController : Controller
     {
         if (User.Identity?.IsAuthenticated ?? false)
         {
-            var role = User.FindFirst(ClaimTypes.Role)?.Value;
-
-            return role == "serviceDesk"
-                ? RedirectToAction("Dashboard", "ServiceDesk")
-                : RedirectToAction("Dashboard", "Employee");
+            return RedirectToDashboard(User.FindFirst(ClaimTypes.Role)?.Value);
         }
 
         return View();
@@ -39,25 +36,24 @@ public sealed class AuthController : Controller
         var user = await _auth.ValidateLoginAsync(vm.Email, vm.Password);
         if (user is null)
         {
-            ModelState.AddModelError("", "Invalid email or password.");
+            ModelState.AddModelError(string.Empty, "Invalid email or password.");
             return View(vm);
         }
 
         var claims = new List<Claim>
-{
-    new Claim(ClaimTypes.NameIdentifier, user.Id ?? ""),
-    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}".Trim()),
-    new Claim(ClaimTypes.Role, user.Role) // IMPORTANT
-};
+        {
+            new(ClaimTypes.NameIdentifier, user.Id ?? string.Empty),
+            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}".Trim()),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, user.Role)
+        };
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(identity));
 
-        return user.Role == "serviceDesk"
-            ? RedirectToAction("Dashboard", "ServiceDesk")
-            : RedirectToAction("Dashboard", "Employee");
+        return RedirectToDashboard(user.Role);
     }
 
     [HttpPost("/Auth/Logout")]
@@ -65,12 +61,17 @@ public sealed class AuthController : Controller
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        // Extra safety: remove the cookie by name too
         Response.Cookies.Delete("The_Garden_Group.Auth");
-
-        return RedirectToAction("Login", "Auth");
+        return RedirectToAction(nameof(Login));
     }
 
     public IActionResult Denied() => View();
+
+    /// <summary>
+    /// Redirects user to appropriate dashboard based on role.
+    /// </summary>
+    private IActionResult RedirectToDashboard(string? role) =>
+        role == Roles.ServiceDesk
+            ? RedirectToAction("Dashboard", "ServiceDesk")
+            : RedirectToAction("Dashboard", "Employee");
 }

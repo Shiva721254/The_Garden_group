@@ -16,7 +16,7 @@
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
 
-                <form asp-action="Edit" method="post">
+                <form action="/Tickets/Edit" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="Id" />
 

@@ -1,9 +1,9 @@
-using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using The_Garden_Group.Models;
 using The_Garden_Group.Repositories;
 using The_Garden_Group.ViewModels;
+using The_Garden_Group.Constants;
 
 namespace The_Garden_Group.Controllers;
 
@@ -32,9 +32,8 @@ public sealed class EmployeesController : Controller
         if (string.IsNullOrWhiteSpace(vm.Password))
             ModelState.AddModelError(nameof(vm.Password), "Password is required.");
 
-        var allowedRoles = new[] { "employee", "serviceDesk" };
-        if (!allowedRoles.Contains(vm.Role))
-            ModelState.AddModelError(nameof(vm.Role), "Invalid role.");
+        if (!Roles.AllRoles.Contains(vm.Role))
+            ModelState.AddModelError(nameof(vm.Role), $"Invalid role. Must be {Roles.Employee} or {Roles.ServiceDesk}.");
 
         if (!ModelState.IsValid) return View(vm);
 
@@ -74,9 +73,8 @@ public sealed class EmployeesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(string id, EmployeeFormVm vm)
     {
-        var allowedRoles = new[] { "employee", "serviceDesk" };
-        if (!allowedRoles.Contains(vm.Role))
-            ModelState.AddModelError(nameof(vm.Role), "Invalid role.");
+        if (!Roles.AllRoles.Contains(vm.Role))
+            ModelState.AddModelError(nameof(vm.Role), $"Invalid role. Must be {Roles.Employee} or {Roles.ServiceDesk}.");
 
         if (!ModelState.IsValid) return View(vm);
 
