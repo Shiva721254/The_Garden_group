@@ -77,4 +77,3 @@ Login: `/Auth/Login`
 ## Docs
 - `DATABASE_ERD.md` — ERD + collection structure
 - `PROJECT_DOCUMENTATION.md` — architecture + decisions
-- `95_POINTS_CHECKLIST.md` — grading proof checklist
